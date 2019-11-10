@@ -20,11 +20,17 @@ RUN pip install torch torchvision
 # install detectron2
 RUN git clone https://github.com/facebookresearch/detectron2 /detectron2_repo
 COPY setup.py /detectron2_repo 
-RUN pip install -e /detectron2_repo
 
 # Run detectron2 on a test image
 RUN mkdir /detectron2_repo/outputs
 COPY test.sh /detectron2_repo
 RUN wget http://images.cocodataset.org/val2017/000000439715.jpg -O /detectron2_repo/input.jpg
 
+## Testing the installation with setup.py
+RUN cd /detectron2_repo; python3 setup.py install
+## Testing the installation with pip 
+# RUN pip install -e /detectron2_repo
+
+
 WORKDIR /detectron2_repo
+
