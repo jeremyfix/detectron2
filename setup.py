@@ -70,6 +70,9 @@ setup(
     "platform for object detection and segmentation.",
     packages=find_packages(exclude=("configs", "tests")),
     python_requires=">=3.6",
+    setup_requires=[
+        "cython"
+    ],
     install_requires=[
         "termcolor>=1.1",
         "Pillow",
@@ -79,6 +82,8 @@ setup(
         "matplotlib",
         "tqdm>4.29.0",
         "tensorboard",
+        "cython",
+        "pycocotools @ git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI",
         "fvcore @ git+https://github.com/facebookresearch/fvcore.git",
     ],
     extras_require={"all": ["shapely", "psutil"]},

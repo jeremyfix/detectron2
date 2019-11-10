@@ -1,0 +1,30 @@
+FROM ubuntu:bionic
+# To use this Dockerfile:
+# 1. `docker build -t detectron2:cpuv0 -f Dockerfile.cpu .`
+# 2.docker build -t detectron2:cpuv0 -f Dockerfile.cpu . `docker run -it --name detectron2cpu detectron2:cpuv0`
+
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update && apt-get install -y \
+	libpng-dev libjpeg-dev python3-opencv ca-certificates \
+	python3-dev build-essential pkg-config git curl wget automake libtool && \
+  rm -rf /var/lib/apt/lists/*
+
+RUN curl -fSsL -O https://bootstrap.pypa.io/get-pip.py && \
+	python3 get-pip.py && \
+	rm get-pip.py
+
+# install dependencies
+# See https://pytorch.org/ for other options if you use a different version of CUDA
+RUN pip install torch torchvision 
+
+# install detectron2
+RUN git clone https://github.com/facebookresearch/detectron2 /detectron2_repo
+COPY setup.py /detectron2_repo 
+RUN pip install -e /detectron2_repo
+
+# Run detectron2 on a test image
+RUN mkdir /detectron2_repo/outputs
+COPY test.sh /detectron2_repo
+RUN wget http://images.cocodataset.org/val2017/000000439715.jpg -O /detectron2_repo/input.jpg
+
+WORKDIR /detectron2_repo
