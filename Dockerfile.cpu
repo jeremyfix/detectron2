@@ -1,7 +1,8 @@
 FROM ubuntu:bionic
 # To use this Dockerfile:
 # 1. `docker build -t detectron2:cpuv0 -f Dockerfile.cpu .`
-# 2.docker build -t detectron2:cpuv0 -f Dockerfile.cpu . `docker run -it --name detectron2cpu detectron2:cpuv0`
+# 2. `docker run -it --name detectron2cpu detectron2:cpuv0`
+
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y \
@@ -14,23 +15,19 @@ RUN curl -fSsL -O https://bootstrap.pypa.io/get-pip.py && \
 	rm get-pip.py
 
 # install dependencies
-# See https://pytorch.org/ for other options if you use a different version of CUDA
-RUN pip install torch torchvision 
+# See https://pytorch.org/ for other options
+RUN pip install torch==1.3.1+cpu torchvision==0.4.2+cpu -f https://download.pytorch.org/whl/torch_stable.html
 
 # install detectron2
 RUN git clone https://github.com/facebookresearch/detectron2 /detectron2_repo
 COPY setup.py /detectron2_repo 
-
-# Run detectron2 on a test image
-RUN mkdir /detectron2_repo/outputs
-COPY test.sh /detectron2_repo
-RUN wget http://images.cocodataset.org/val2017/000000439715.jpg -O /detectron2_repo/input.jpg
-
-## Testing the installation with setup.py
-RUN cd /detectron2_repo; python3 setup.py install
-## Testing the installation with pip 
-# RUN pip install -e /detectron2_repo
-
+RUN cd /detectron2_repo; python setup.py install
 
 WORKDIR /detectron2_repo
 
+# Run it, for example:
+# wget http://images.cocodataset.org/val2017/000000439715.jpg -O input.jpg
+# python3 demo/demo.py  \
+# 	--config-file configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml \
+# 	--input input.jpg --output outputs/ \
+# 	--opts MODEL.WEIGHTS detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl MODEL.DEVICE cpu
